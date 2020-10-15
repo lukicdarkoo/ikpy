@@ -87,6 +87,15 @@ def homogeneous_translation_matrix(trans_x, trans_y, trans_z):
     return np.array([[1, 0, 0, trans_x], [0, 1, 0, trans_y], [0, 0, 1, trans_z], [0, 0, 0, 1]])
 
 
+def symbolic_axis_translation_matrix(axis, symbolic_theta):
+    return sympy.Matrix([
+        [ 1, 0, 0, axis[0] * symbolic_theta ],
+        [ 0, 1, 0, axis[1] * symbolic_theta ],
+        [ 0, 0, 1, axis[2] * symbolic_theta ],
+        [ 0, 0, 0, 1 ]
+    ])
+
+
 def from_transformation_matrix(transformation_matrix):
     """Convert a transformation matrix to a tuple (translation_vector, rotation_matrix)"""
     return transformation_matrix[:, -1], transformation_matrix[:-1, :-1]

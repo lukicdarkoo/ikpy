@@ -110,8 +110,12 @@ class URDFLink(Link):
         else:
             self.rotation = None
             self.has_rotation = False
+        self.can_translate = False
 
-        if use_symbolic_matrix:
+        self.update()
+
+    def update(self):
+        if self.use_symbolic_matrix:
             # Angle symbolique qui paramètre la rotation du joint en cours
             theta = sympy.symbols("theta")
             self.symbolic_transformation_matrix = self._apply_geometric_transformations(theta=theta, symbolic=self.use_symbolic_matrix)
@@ -152,12 +156,13 @@ class URDFLink(Link):
 
             # Apply translation matrix
             symbolic_frame_matrix = symbolic_frame_matrix * sympy.Matrix(geometry.homogeneous_translation_matrix(*self.translation_vector))
-
             # Apply orientation matrix
             symbolic_frame_matrix = symbolic_frame_matrix * geometry.cartesian_to_homogeneous(geometry.rpy_matrix(*self.orientation))
 
             # Apply rotation matrix
-            if self.rotation is not None:
+            if self.can_translate:
+                symbolic_frame_matrix = symbolic_frame_matrix * geometry.symbolic_axis_translation_matrix(self.rotation, theta)
+            elif self.rotation is not None:
                 symbolic_frame_matrix = symbolic_frame_matrix * geometry.cartesian_to_homogeneous(geometry.symbolic_axis_rotation_matrix(self.rotation, theta), matrix_type="sympy")
 
             symbolic_frame_matrix = sympy.lambdify(theta, symbolic_frame_matrix, "numpy")
