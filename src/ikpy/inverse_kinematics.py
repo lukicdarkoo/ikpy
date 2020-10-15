@@ -4,7 +4,7 @@ import numpy as np
 from . import logs
 
 
-ORIENTATION_COEFF = 0.15
+ORIENTATION_COEFF = 0.5
 
 
 def inverse_kinematic_optimization(chain, target_frame, starting_nodes_angles, regularization_parameter=None, max_iter=None, orientation_mode=None, no_position=False):
@@ -130,9 +130,11 @@ def inverse_kinematic_optimization(chain, target_frame, starting_nodes_angles, r
     if max_iter is not None:
         options["maxiter"] = max_iter
 
-    # Utilisation d'une optimisation L-BFGS-B
-    res = scipy.optimize.minimize(optimize_total, chain.active_from_full(starting_nodes_angles), method='L-BFGS-B', bounds=real_bounds, options=options)
-
+    # Utilisation d'une optimisation SLSQP
+    res = scipy.optimize.minimize(optimize_total, chain.active_from_full(starting_nodes_angles), method='SLSQP', bounds=real_bounds, options=options)
+    if res.fun > 0.01:
+        # Solution cannot be found within the bounds
+        return starting_nodes_angles
     logs.logger.info("Inverse kinematic optimisation OK, done in {} iterations".format(res.nit))
 
     return chain.active_to_full(res.x, starting_nodes_angles)
