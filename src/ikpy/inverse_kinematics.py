@@ -4,7 +4,7 @@ import numpy as np
 from . import logs
 
 
-ORIENTATION_COEFF = 1.
+ORIENTATION_COEFF = 0.15
 
 
 def inverse_kinematic_optimization(chain, target_frame, starting_nodes_angles, regularization_parameter=None, max_iter=None, orientation_mode=None, no_position=False):
